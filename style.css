@@ -1,0 +1,25 @@
+body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+img {
+    display: block;
+    width: 200px;
+    cursor: pointer;
+}
+
+td {
+    border: 2px solid gray;
+}
+
+table {
+    background-color: black;
+}
+
+#win-text {
+    font-size: 30px;
+    color: greenyellow;
+    background-color: green;
+}
