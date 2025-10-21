@@ -19,9 +19,17 @@ const imgListLength = imgList.length;
 let start = document.getElementById("start");
 start.addEventListener("click", startPuzzle);
 
-//Junto con un for y con un Math random asigno las imagenes de forma aleatoria
+let segundos = 0; //Hago la variable "segundos" de forma global para usarla mas adelante en otra funcion
+let counter = document.getElementById('counter'); //Lo mismo con el timer
+let moveCounter = 0 //Contador de movimientos
+
+
+//Cambio reciente: Muevo toda la logica dentro de la funcion para empezar el puzzle, ya que antes de hacer click en "Empezar"
+//si haces click en cualquier parte del puzzle cuenta como que has ganado por que la funcion "release" llama a la funcion "checkPuzzle"
+//y detecta que las piezas estan en orden y pues eso. Lo meto todo dentro de esta funcion y ya esta, no es necesario hacer validaciones
+
 function startPuzzle() {
-    for (let i = 0; i < imgListLength; i++) {
+    for (let i = 0; i < imgListLength; i++) { //Junto con un for y con un Math random asigno las imagenes de forma aleatoria
         let imgListIndex = Math.floor(Math.random() * imgList.length);
         tds[i].innerHTML = imgList[imgListIndex];
         //Con el metodo splice puedo borrar la imagen que ya apareció para que no vuelva a salir
@@ -29,97 +37,96 @@ function startPuzzle() {
     }
     start.setAttribute("hidden", true);
     
-    const inicio = new Date(); // Fecha y hora actual
-    let timer = document.getElementById('contador');
+    const initial = new Date(); //Fecha y hora actual de cuando se pulsa el boton
     
-    function actualizarContador() {
-        const ahora = new Date(); // Fecha y hora actual
-        const diferencia = ahora - inicio; // Diferencia en milisegundos
-        const segundos = Math.floor(diferencia / 1000); // Convertimos a segundos
-        timer.innerHTML = segundos;
+    function updateTimer() {
+        const now = new Date(); //Hago otra fecha y hora, ya que esta funcion se ira actualizando
+        const diference = now - initial; //Resto la primera hora que es "estatica", con la que se va actualizando
+        segundos = Math.floor(diference / 1000); //Convierto a segundos
     }
-    setInterval(actualizarContador, 100);
-}
-
-
-let tileCoordinateList = [] //Array para guardar las coordenadas que asignare a cada td
-
-for (let y = 0; y < 3; y++) {
-    for (let x = 0; x < 3; x++) {
-        tileCoordinateList.push([y, x]);
-    }
-}
-
-for (let i = 0; i < tds.length; i++) {
-    tds[i].setAttribute('name', tileCoordinateList[i]) //Añado el atributo "name" a los td y le asigno las coordenadas en el name
-}
-
-
-///////////////////////////////////////////////////////
-//---------APARTADO DE MOVER LAS CASILLAS------------//
-///////////////////////////////////////////////////////
-
-let dragElement = document.getElementsByTagName("td");
-
-for (let i = 0; i < tds.length; i++) {
-    dragElement[i].addEventListener("mousedown", dragEvent);
-    dragElement[i].addEventListener("mouseup", releaseEvent);
-}
-
-var dragTileId = "";
-
-//Uso currentTarget.id para extraer el id del target al cual se refiere la funcion, en este caso el <td>
-//Si lo hiciera con target.id sin más, detectaria la imagen, supongo que por el bubbling.
-function dragEvent(e) {
-    dragTileId = e.currentTarget.id;
-};
-
-let moveCounter = 0 //Contador de movimientos
-
-function releaseEvent(e) {
-    let dropTile = document.getElementById(e.currentTarget.id); //Casilla donde suelto el click
-    let draggedTile = document.getElementById(dragTileId); //Casilla que he arrastrado
     
-    if (dropTile.getAttribute('title') == "empty") { //Si la casilla donde suelto el click su atributo "title" es = a empty
+    //Cada 1000 milisegundos, se llama a la funcion para que la variable "ahora" se actualize,
+    //y al restale la diferencia, se vayan sumando los numeros
+    setInterval(updateTimer, 1000);
 
-        //Saco las coordenadas de la casilla arrastrada y donde suelto, y las convierto en numeros
-        let [dragCoordinateY, dragCoordinateX] = draggedTile.getAttribute('name').split(',').map(Number);
-        let [dropCoordinateY, dropCoordinateX] = dropTile.getAttribute('name').split(',').map(Number);
 
-        if ((dropCoordinateY === dragCoordinateY - 1 && dropCoordinateX === dragCoordinateX) || (dropCoordinateY === dragCoordinateY + 1 && dropCoordinateX === dragCoordinateX) || (dropCoordinateY === dragCoordinateY && dropCoordinateX === dragCoordinateX - 1) || (dropCoordinateY === dragCoordinateY && dropCoordinateX === dragCoordinateX + 1)) {
-            draggedTile.setAttribute("title", "empty"); //A la casilla que arrastre le asigno un "title" empty
+    let tileCoordinateList = [] //Array para guardar las coordenadas que asignare a cada td
 
-            //Y a la casilla donde solte, le quito el "title" empty, por que ahora actuará como una casilla jugable
-            dropTile.removeAttribute("title");
-
-            //LOGICA DE CAMBIO DE IMAGEN//
-            let aux = dropTile.innerHTML;
-
-            dropTile.innerHTML = draggedTile.innerHTML;
-
-            draggedTile.innerHTML = aux;
-
-            moveCounter++
-
-            console.log(moveCounter);
-            //LOGICA DE CAMBIO DE IMAGEN//
-
-            //EXPLICACION DE LAS COORDENADAS//
-            //Ejemplo: La casilla empty esta en 2,2. Si la casilla que arrastre no estaba en 
-            //(menos 1y,misma x) o (misma y,menos 1x) o (misma y, mas 1x) o (mas 1y, misma x), 
-            //esa casilla no esta a un lado del empty por lo tanto, no se moverá al empty
-
-            //CODIGO MAS VISIBLE//
-            //if((dropCoordinateY === dragCoordinateY - 1 && dropCoordinateX === dragCoordinateX) ||
-            //(dropCoordinateY === dragCoordinateY + 1 && dropCoordinateX === dragCoordinateX) ||)
-            //(dropCoordinateY === dragCoordinateY && dropCoordinateX === dragCoordinateX - 1) ||
-            //(dropCoordinateY === dragCoordinateY && dropCoordinateX === dragCoordinateX + 1))
+    for (let y = 0; y < 3; y++) {
+        for (let x = 0; x < 3; x++) {
+            tileCoordinateList.push([y, x]);
         }
     }
 
-    //Llamo a la funcion que comprueba el puzzle cada vez que hago uso de la funcion release, es decir,
-    //cada vez que suelto el click despues de seleccionar una casilla
-    checkPuzzle(); 
+    for (let i = 0; i < tds.length; i++) {
+        tds[i].setAttribute('name', tileCoordinateList[i]) //Añado el atributo "name" a los td y le asigno las coordenadas en el name
+    }
+
+
+    ///////////////////////////////////////////////////////
+    //---------APARTADO DE MOVER LAS CASILLAS------------//
+    ///////////////////////////////////////////////////////
+
+    let dragElement = document.getElementsByTagName("td");
+
+    for (let i = 0; i < tds.length; i++) {
+        dragElement[i].addEventListener("mousedown", dragEvent);
+        dragElement[i].addEventListener("mouseup", releaseEvent);
+    }
+
+    var dragTileId = "";
+
+    //Uso currentTarget.id para extraer el id del target al cual se refiere la funcion, en este caso el <td>
+    //Si lo hiciera con target.id sin más, detectaria la imagen, supongo que por el bubbling.
+    function dragEvent(e) {
+        dragTileId = e.currentTarget.id;
+    };
+
+    function releaseEvent(e) {
+        let dropTile = document.getElementById(e.currentTarget.id); //Casilla donde suelto el click
+        let draggedTile = document.getElementById(dragTileId); //Casilla que he arrastrado
+
+        if (dropTile.getAttribute('title') == "empty") { //Si la casilla donde suelto el click su atributo "title" es = a empty
+
+            //Saco las coordenadas de la casilla arrastrada y donde suelto, y las convierto en numeros
+            let [dragCoordinateY, dragCoordinateX] = draggedTile.getAttribute('name').split(',').map(Number);
+            let [dropCoordinateY, dropCoordinateX] = dropTile.getAttribute('name').split(',').map(Number);
+
+            if ((dropCoordinateY === dragCoordinateY - 1 && dropCoordinateX === dragCoordinateX) || (dropCoordinateY === dragCoordinateY + 1 && dropCoordinateX === dragCoordinateX) || (dropCoordinateY === dragCoordinateY && dropCoordinateX === dragCoordinateX - 1) || (dropCoordinateY === dragCoordinateY && dropCoordinateX === dragCoordinateX + 1)) {
+                draggedTile.setAttribute("title", "empty"); //A la casilla que arrastre le asigno un "title" empty
+
+                //Y a la casilla donde solte, le quito el "title" empty, por que ahora actuará como una casilla jugable
+                dropTile.removeAttribute("title");
+
+                //LOGICA DE CAMBIO DE IMAGEN//
+                let aux = dropTile.innerHTML;
+
+                dropTile.innerHTML = draggedTile.innerHTML;
+
+                draggedTile.innerHTML = aux;
+
+                moveCounter++
+
+                console.log(moveCounter);
+                //LOGICA DE CAMBIO DE IMAGEN//
+
+                //EXPLICACION DE LAS COORDENADAS//
+                //Ejemplo: La casilla empty esta en 2,2. Si la casilla que arrastre no estaba en 
+                //(menos 1y,misma x) o (misma y,menos 1x) o (misma y, mas 1x) o (mas 1y, misma x), 
+                //esa casilla no esta a un lado del empty por lo tanto, no se moverá al empty
+
+                //CODIGO MAS VISIBLE//
+                //if((dropCoordinateY === dragCoordinateY - 1 && dropCoordinateX === dragCoordinateX) ||
+                //(dropCoordinateY === dragCoordinateY + 1 && dropCoordinateX === dragCoordinateX) ||)
+                //(dropCoordinateY === dragCoordinateY && dropCoordinateX === dragCoordinateX - 1) ||
+                //(dropCoordinateY === dragCoordinateY && dropCoordinateX === dragCoordinateX + 1))
+            }
+        }
+
+        //Llamo a la funcion que comprueba el puzzle cada vez que hago uso de la funcion release, es decir,
+        //cada vez que suelto el click despues de seleccionar una casilla
+        checkPuzzle(); 
+    }
 }
 
 ///////////////////////////////////////////////////////
@@ -133,8 +140,8 @@ function checkPuzzle() {
         let imgs = tds[i].querySelector("img"); //Obtengo de cada td su elemento img
         let imgSrc = imgs.getAttribute("src"); //Obtengo el atributo "src" de la img
 
-        //Funcionamiento con mis palabras: Si el atributo "src" del elemento "img" del td posicion [i] es igual 
-        //a la imagen {imageCounter}, esta bien
+        //Funcionamiento: Si el atributo "src" del elemento "img" del td posicion [i] es igual 
+        //a la imagen {imageCounter}, esta bien.
         if (imgSrc == `img/tile${imageCounter}.png`) {
             console.log(`Tile${imageCounter} correcto`);
             if (! imgCorrectOrder.includes(imgSrc)) { //Si el "src" que esta siendo comprobado, no esta en la lista, que lo introduzca
@@ -147,6 +154,8 @@ function checkPuzzle() {
 
     }
 
+    let winners = document.getElementById("winners") //Apartado de ganadores
+    let allMoves = document.getElementById("all-moves");
     let winText = document.getElementById("win-text");
     let winValidation = true;
 
@@ -162,5 +171,10 @@ function checkPuzzle() {
     //En el caso de que la validacion sea correcta, aparecerá el mensaje ganador
     if (winValidation) {   
         winText.innerHTML = "Has ganado";
+        allMoves.innerHTML = `Movimientos: ${moveCounter}`;
+        counter.innerHTML = `Segundos: ${segundos}`;
+        for (let i = 0; i < tds.length; i++) {
+            tds[i].style.pointerEvents = "none"; //Una vez haya ganado deshabilito las funciones de interacciones con los clicks
+        }
     }
 }

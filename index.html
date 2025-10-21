@@ -7,6 +7,8 @@
     <title>Puzzle deslizante</title>
 </head>
 <body>
+    <h1>Puzzle deslizante</h1>
+    <h2>Cuando le des a "Empezar" deberas ordenar el puzzle de esta manera</h2>
     <table>
         <tr>
             <td id="tile1" title=""></td>
@@ -28,7 +30,15 @@
     <button id="start">Empezar</button>
 
     <p id="win-text"></p>
-    <h1 id="contador">0</h1>
+
+    <div id="winners" hidden="true">
+        <h2>Ganadores</h2>
+        <div id="win-details">
+            <p id="all-moves"></p>
+            <p id="counter"></p>
+        </div>
+    </div>
+
     <script src="main.js"></script>
 </body>
 </html>

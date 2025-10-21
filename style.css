@@ -2,6 +2,22 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
+    background-color: rgb(116, 177, 112);
+}
+
+h1, h2 {
+    font-family: Arial, Helvetica, sans-serif;
+    color: rgb(255, 255, 128);
+    text-shadow: -3px 3px 2px rgba(0, 0, 0, 0.7);
+}
+
+h1 {
+    margin-bottom: 0px;
+    font-size: 40px;
+}
+
+h2 {
+    font-size: 28px;
 }
 
 img {
@@ -10,12 +26,45 @@ img {
     cursor: pointer;
 }
 
+table {
+    background-color: black;
+    border-radius: 22px;
+}
+
 td {
     border: 2px solid gray;
 }
 
-table {
-    background-color: black;
+#tile1 {
+    border-top-left-radius: 20px;
+}
+
+#tile1 img {
+    border-top-left-radius: 20px;
+}
+
+#tile3 {
+    border-top-right-radius: 20px;
+}
+
+#tile3 img {
+    border-top-right-radius: 20px;
+}
+
+#tile7 {
+    border-bottom-left-radius: 20px;
+}
+
+#tile7 img {
+    border-bottom-left-radius: 20px;
+}
+
+#tile9 {
+    border-bottom-right-radius: 20px;
+}
+
+#tile9 img {
+    border-bottom-right-radius: 20px;
 }
 
 button {
@@ -38,4 +87,33 @@ button:hover {
     font-size: 30px;
     color: greenyellow;
     background-color: green;
+}
+
+#winners {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: absolute;
+    right: 180px;
+    top: 200px;
+}
+
+#win-details {
+    display: flex;
+    justify-content: space-around;
+    gap: 15px;
+}
+
+#all-moves {
+    font-size: 23px;
+    margin: 0px;
+    font-weight: bold;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+#counter {
+    font-size: 23px;
+    margin: 0px;
+    font-weight: bold;
+    font-family: Arial, Helvetica, sans-serif;
 }
