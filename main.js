@@ -1,23 +1,13 @@
-const inicio = new Date(); // Fecha y hora actual
-let timer = document.getElementById('contador');
-
-function actualizarContador() {
-    const ahora = new Date(); // Fecha y hora actual
-    const diferencia = ahora - inicio; // Diferencia en milisegundos
-    const segundos = Math.floor(diferencia / 1000); // Convertimos a segundos
-    display.textContent = segundos;
-}
-
-// Actualizamos cada 100 ms para que sea más preciso
-setInterval(actualizarContador, 100);
-
 let tds = document.querySelectorAll("td");
-
 
 var imgList = ["<img draggable='false' src='img/tile1.png'>", "<img draggable='false' src='img/tile2.png'>", 
            "<img draggable='false' src='img/tile3.png'>", "<img draggable='false' src='img/tile4.png'>", 
            "<img draggable='false' src='img/tile5.png'>", "<img draggable='false' src='img/tile6.png'>", 
            "<img draggable='false' src='img/tile7.png'>", "<img draggable='false' src='img/tile8.png'>"];
+
+for (let i = 0; i < imgList.length; i++) {
+    tds[i].innerHTML = imgList[i];
+}
 
 //Con los ... puntos puedo crear un backup del array, sin los 3 puntos, solo estaria guardando un punto de referencia
 var imgListBackup = [...imgList];
@@ -25,11 +15,30 @@ var imgListBackup = [...imgList];
 //Hago una variable constante del tamaño de la lista para que no me afecte al for
 const imgListLength = imgList.length;
 
-for (let i = 0; i < imgListLength; i++) {
-    let imgListIndex = Math.floor(Math.random() * imgList.length);
-    tds[i].innerHTML = imgList[imgListIndex];
-    //Con el metodo splice puedo borrar la imagen que ya apareció para que no vuelva a salir
-    imgList.splice(imgListIndex, 1);
+//Creo la funcion para el boton empezar
+let start = document.getElementById("start");
+start.addEventListener("click", startPuzzle);
+
+//Junto con un for y con un Math random asigno las imagenes de forma aleatoria
+function startPuzzle() {
+    for (let i = 0; i < imgListLength; i++) {
+        let imgListIndex = Math.floor(Math.random() * imgList.length);
+        tds[i].innerHTML = imgList[imgListIndex];
+        //Con el metodo splice puedo borrar la imagen que ya apareció para que no vuelva a salir
+        imgList.splice(imgListIndex, 1);
+    }
+    start.setAttribute("hidden", true);
+    
+    const inicio = new Date(); // Fecha y hora actual
+    let timer = document.getElementById('contador');
+    
+    function actualizarContador() {
+        const ahora = new Date(); // Fecha y hora actual
+        const diferencia = ahora - inicio; // Diferencia en milisegundos
+        const segundos = Math.floor(diferencia / 1000); // Convertimos a segundos
+        timer.innerHTML = segundos;
+    }
+    setInterval(actualizarContador, 100);
 }
 
 

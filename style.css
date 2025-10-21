@@ -18,6 +18,22 @@ table {
     background-color: black;
 }
 
+button {
+    margin-top: 20px;
+    padding: 10px 20px;
+    border-radius: 15px;
+    border-style: none;
+    border: 2px solid black;
+    font-size: 18px;
+    font-weight: bold;
+    background-color: rgb(72, 179, 255);
+}
+
+button:hover {
+    cursor: pointer;
+    background-color: rgb(58, 139, 196);
+}
+
 #win-text {
     font-size: 30px;
     color: greenyellow;
