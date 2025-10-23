@@ -9,6 +9,25 @@ for (let i = 0; i < imgList.length; i++) {
     tds[i].innerHTML = imgList[i];
 }
 
+//Una función para cargar y mostrar los records del localStorage
+function loadRecords() {
+    let allMoves = document.getElementById("all-moves");
+
+    //Creo un array con localStorage que contendrá un array anidado con los detalles del ganador
+    //JSON.parse convierte el string de localStorage a un array de JavaScript
+    const totalWinnersDetails = JSON.parse(localStorage.getItem("totalWinnersDetails"));
+    
+    let records = "";
+    for (let i = 0; i < totalWinnersDetails.length; i++) {
+        records += `Partida ${i + 1}: Movimientos: ${totalWinnersDetails[i][0]}, Segundos: ${totalWinnersDetails[i][1]}<br><br>`;
+    }
+    
+    allMoves.innerHTML = records;
+}
+
+//Llamo a la función cuando la página se carga para mostrar los records guardados, en caso de que haya
+window.addEventListener('load', loadRecords);
+
 //Con los ... puntos puedo crear un backup del array, sin los 3 puntos, solo estaria guardando un punto de referencia
 var imgListBackup = [...imgList];
 
@@ -19,8 +38,7 @@ const imgListLength = imgList.length;
 let start = document.getElementById("start");
 start.addEventListener("click", startPuzzle);
 
-let segundos = 0; //Hago la variable "segundos" de forma global para usarla mas adelante en otra funcion
-let counter = document.getElementById('counter'); //Lo mismo con el timer
+let seconds = 0; //Hago la variable "seconds" de forma global para usarla mas adelante en otra funcion
 let moveCounter = 0 //Contador de movimientos
 
 
@@ -42,7 +60,7 @@ function startPuzzle() {
     function updateTimer() {
         const now = new Date(); //Hago otra fecha y hora, ya que esta funcion se ira actualizando
         const diference = now - initial; //Resto la primera hora que es "estatica", con la que se va actualizando
-        segundos = Math.floor(diference / 1000); //Convierto a segundos
+        seconds = Math.floor(diference / 1000); //Convierto a segundos
     }
     
     //Cada 1000 milisegundos, se llama a la funcion para que la variable "ahora" se actualize,
@@ -86,17 +104,17 @@ function startPuzzle() {
         let dropTile = document.getElementById(e.currentTarget.id); //Casilla donde suelto el click
         let draggedTile = document.getElementById(dragTileId); //Casilla que he arrastrado
 
-        if (dropTile.getAttribute('title') == "empty") { //Si la casilla donde suelto el click su atributo "title" es = a empty
+        //if (dropTile.getAttribute('title') == "empty") { //Si la casilla donde suelto el click su atributo "title" es = a empty
 
             //Saco las coordenadas de la casilla arrastrada y donde suelto, y las convierto en numeros
-            let [dragCoordinateY, dragCoordinateX] = draggedTile.getAttribute('name').split(',').map(Number);
-            let [dropCoordinateY, dropCoordinateX] = dropTile.getAttribute('name').split(',').map(Number);
+            //let [dragCoordinateY, dragCoordinateX] = draggedTile.getAttribute('name').split(',').map(Number);
+            //let [dropCoordinateY, dropCoordinateX] = dropTile.getAttribute('name').split(',').map(Number);
 
-            if ((dropCoordinateY === dragCoordinateY - 1 && dropCoordinateX === dragCoordinateX) || (dropCoordinateY === dragCoordinateY + 1 && dropCoordinateX === dragCoordinateX) || (dropCoordinateY === dragCoordinateY && dropCoordinateX === dragCoordinateX - 1) || (dropCoordinateY === dragCoordinateY && dropCoordinateX === dragCoordinateX + 1)) {
-                draggedTile.setAttribute("title", "empty"); //A la casilla que arrastre le asigno un "title" empty
+            //if ((dropCoordinateY === dragCoordinateY - 1 && dropCoordinateX === dragCoordinateX) || (dropCoordinateY === dragCoordinateY + 1 && dropCoordinateX === dragCoordinateX) || (dropCoordinateY === dragCoordinateY && dropCoordinateX === dragCoordinateX - 1) || (dropCoordinateY === dragCoordinateY && dropCoordinateX === dragCoordinateX + 1)) {
+                //draggedTile.setAttribute("title", "empty"); //A la casilla que arrastre le asigno un "title" empty
 
                 //Y a la casilla donde solte, le quito el "title" empty, por que ahora actuará como una casilla jugable
-                dropTile.removeAttribute("title");
+                //dropTile.removeAttribute("title");
 
                 //LOGICA DE CAMBIO DE IMAGEN//
                 let aux = dropTile.innerHTML;
@@ -120,8 +138,8 @@ function startPuzzle() {
                 //(dropCoordinateY === dragCoordinateY + 1 && dropCoordinateX === dragCoordinateX) ||)
                 //(dropCoordinateY === dragCoordinateY && dropCoordinateX === dragCoordinateX - 1) ||
                 //(dropCoordinateY === dragCoordinateY && dropCoordinateX === dragCoordinateX + 1))
-            }
-        }
+            //}
+        //}
 
         //Llamo a la funcion que comprueba el puzzle cada vez que hago uso de la funcion release, es decir,
         //cada vez que suelto el click despues de seleccionar una casilla
@@ -168,13 +186,23 @@ function checkPuzzle() {
         }
     }
 
+    //Vuelvo a declarar otra vez el mismo localStorage por que estan en funciones distintas, este permite guardar los datos
+    //cuando se ha ganado, y el de la funcion "loadRecords" permite mostrar los records que ha guardado este ↓ localStorage
+    //Si no hay datos guardados, uso un array vacío como valor por defecto con ||
+    const totalWinnersDetails = JSON.parse(localStorage.getItem("totalWinnersDetails")) || [];
+
     //En el caso de que la validacion sea correcta, aparecerá el mensaje ganador
     if (winValidation) {   
         winText.innerHTML = "Has ganado";
-        allMoves.innerHTML = `Movimientos: ${moveCounter}`;
-        counter.innerHTML = `Segundos: ${segundos}`;
+        const winnerDetailsList = [moveCounter, seconds];
+        totalWinnersDetails.push(winnerDetailsList);
+        localStorage.setItem("totalWinnersDetails", JSON.stringify(totalWinnersDetails));
+
         for (let i = 0; i < tds.length; i++) {
             tds[i].style.pointerEvents = "none"; //Una vez haya ganado deshabilito las funciones de interacciones con los clicks
         }
     }
+    
+    loadRecords();
 }
+
