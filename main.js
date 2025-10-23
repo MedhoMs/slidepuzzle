@@ -15,7 +15,8 @@ function loadRecords() {
 
     //Creo un array con localStorage que contendrá un array anidado con los detalles del ganador
     //JSON.parse convierte el string de localStorage a un array de JavaScript
-    const totalWinnersDetails = JSON.parse(localStorage.getItem("totalWinnersDetails"));
+    //Si no hay datos guardados, uso un array vacío como valor por defecto con ||
+    const totalWinnersDetails = JSON.parse(localStorage.getItem("totalWinnersDetails")) || [];
     
     let records = "";
     for (let i = 0; i < totalWinnersDetails.length; i++) {
@@ -40,7 +41,6 @@ start.addEventListener("click", startPuzzle);
 
 let seconds = 0; //Hago la variable "seconds" de forma global para usarla mas adelante en otra funcion
 let moveCounter = 0 //Contador de movimientos
-
 
 //Cambio reciente: Muevo toda la logica dentro de la funcion para empezar el puzzle, ya que antes de hacer click en "Empezar"
 //si haces click en cualquier parte del puzzle cuenta como que has ganado por que la funcion "release" llama a la funcion "checkPuzzle"
@@ -104,17 +104,17 @@ function startPuzzle() {
         let dropTile = document.getElementById(e.currentTarget.id); //Casilla donde suelto el click
         let draggedTile = document.getElementById(dragTileId); //Casilla que he arrastrado
 
-        //if (dropTile.getAttribute('title') == "empty") { //Si la casilla donde suelto el click su atributo "title" es = a empty
+        if (dropTile.getAttribute('title') == "empty") { //Si la casilla donde suelto el click su atributo "title" es = a empty
 
             //Saco las coordenadas de la casilla arrastrada y donde suelto, y las convierto en numeros
-            //let [dragCoordinateY, dragCoordinateX] = draggedTile.getAttribute('name').split(',').map(Number);
-            //let [dropCoordinateY, dropCoordinateX] = dropTile.getAttribute('name').split(',').map(Number);
+            let [dragCoordinateY, dragCoordinateX] = draggedTile.getAttribute('name').split(',').map(Number);
+            let [dropCoordinateY, dropCoordinateX] = dropTile.getAttribute('name').split(',').map(Number);
 
-            //if ((dropCoordinateY === dragCoordinateY - 1 && dropCoordinateX === dragCoordinateX) || (dropCoordinateY === dragCoordinateY + 1 && dropCoordinateX === dragCoordinateX) || (dropCoordinateY === dragCoordinateY && dropCoordinateX === dragCoordinateX - 1) || (dropCoordinateY === dragCoordinateY && dropCoordinateX === dragCoordinateX + 1)) {
-                //draggedTile.setAttribute("title", "empty"); //A la casilla que arrastre le asigno un "title" empty
+            if ((dropCoordinateY === dragCoordinateY - 1 && dropCoordinateX === dragCoordinateX) || (dropCoordinateY === dragCoordinateY + 1 && dropCoordinateX === dragCoordinateX) || (dropCoordinateY === dragCoordinateY && dropCoordinateX === dragCoordinateX - 1) || (dropCoordinateY === dragCoordinateY && dropCoordinateX === dragCoordinateX + 1)) {
+                draggedTile.setAttribute("title", "empty"); //A la casilla que arrastre le asigno un "title" empty
 
                 //Y a la casilla donde solte, le quito el "title" empty, por que ahora actuará como una casilla jugable
-                //dropTile.removeAttribute("title");
+                dropTile.removeAttribute("title");
 
                 //LOGICA DE CAMBIO DE IMAGEN//
                 let aux = dropTile.innerHTML;
@@ -138,8 +138,8 @@ function startPuzzle() {
                 //(dropCoordinateY === dragCoordinateY + 1 && dropCoordinateX === dragCoordinateX) ||)
                 //(dropCoordinateY === dragCoordinateY && dropCoordinateX === dragCoordinateX - 1) ||
                 //(dropCoordinateY === dragCoordinateY && dropCoordinateX === dragCoordinateX + 1))
-            //}
-        //}
+            }
+        }
 
         //Llamo a la funcion que comprueba el puzzle cada vez que hago uso de la funcion release, es decir,
         //cada vez que suelto el click despues de seleccionar una casilla
@@ -156,12 +156,17 @@ function checkPuzzle() {
     let imgCorrectOrder = [] //Creo un array para ir introduciendo las imagenes en el orden correcto, para despues verificarlo
     for (let i = 0; i < imgListBackup.length; i++) {
         let imgs = tds[i].querySelector("img"); //Obtengo de cada td su elemento img
+
+        if (!imgs) { //Control de error para cuando llegue a la tile 9, donde no hay imagen y ahí saltaba un error
+            imageCounter++;
+            continue;
+        }
+
         let imgSrc = imgs.getAttribute("src"); //Obtengo el atributo "src" de la img
 
         //Funcionamiento: Si el atributo "src" del elemento "img" del td posicion [i] es igual 
         //a la imagen {imageCounter}, esta bien.
         if (imgSrc == `img/tile${imageCounter}.png`) {
-            console.log(`Tile${imageCounter} correcto`);
             if (! imgCorrectOrder.includes(imgSrc)) { //Si el "src" que esta siendo comprobado, no esta en la lista, que lo introduzca
                 imgCorrectOrder.push(imgSrc);
             }
@@ -173,7 +178,6 @@ function checkPuzzle() {
     }
 
     let winners = document.getElementById("winners") //Apartado de ganadores
-    let allMoves = document.getElementById("all-moves");
     let winText = document.getElementById("win-text");
     let winValidation = true;
 
