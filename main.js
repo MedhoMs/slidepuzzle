@@ -17,10 +17,13 @@ function loadRecords() {
     //JSON.parse convierte el string de localStorage a un array de JavaScript
     //Si no hay datos guardados, uso un array vacío como valor por defecto con ||
     const totalWinnersDetails = JSON.parse(localStorage.getItem("totalWinnersDetails")) || [];
+
+    //Esto ordena los records de menor numero de movimientos a mayor en base a los movimientos
+    totalWinnersDetails.sort((a, b) => a[0] - b[0]);
     
     let records = "";
     for (let i = 0; i < totalWinnersDetails.length; i++) {
-        records += `Partida ${i + 1}: Movimientos: ${totalWinnersDetails[i][0]}, Segundos: ${totalWinnersDetails[i][1]}<br><br>`;
+        records += `Top ${i + 1}: Movimientos: ${totalWinnersDetails[i][0]}, Segundos: ${totalWinnersDetails[i][1]}<br><br>`;
     }
     
     allMoves.innerHTML = records;
@@ -41,6 +44,8 @@ start.addEventListener("click", startPuzzle);
 
 let seconds = 0; //Hago la variable "seconds" de forma global para usarla mas adelante en otra funcion
 let moveCounter = 0 //Contador de movimientos
+
+let moveCounterText = document.getElementById("move-counter");
 
 //Cambio reciente: Muevo toda la logica dentro de la funcion para empezar el puzzle, ya que antes de hacer click en "Empezar"
 //si haces click en cualquier parte del puzzle cuenta como que has ganado por que la funcion "release" llama a la funcion "checkPuzzle"
@@ -125,7 +130,8 @@ function startPuzzle() {
 
                 moveCounter++
 
-                console.log(moveCounter);
+                moveCounterText.innerHTML = `MOVIMIENTOS: ${moveCounter}`;
+
                 //LOGICA DE CAMBIO DE IMAGEN//
 
                 //EXPLICACION DE LAS COORDENADAS//
